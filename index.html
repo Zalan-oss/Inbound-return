@@ -13,7 +13,7 @@
 
 <h2>Total Scan: <span id="counter">0</span></h2>
 
-<button onclick="startScanner()">Mulai Scan</button>
+<button onclick="startAll()">Mulai Scan</button>
 
 <div id="reader" style="width:300px; margin-top:20px;"></div>
 
@@ -24,21 +24,37 @@ tanggal.value = new Date().toISOString().split('T')[0];
 let scanner;
 let count = 0;
 let lastScan = "";
+let lastTime = 0;
+let audioCtx = null;
 
-// 🔊 beep sederhana
+// 🔊 init audio sekali
+function initBeep() {
+  if (!audioCtx) {
+    audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+  }
+}
+
+// 🔊 bunyi beep
 function beep() {
-  let ctx = new (window.AudioContext || window.webkitAudioContext)();
-  let oscillator = ctx.createOscillator();
-  oscillator.type = "beep";
-  oscillator.frequency.setValueAtTime(1000, ctx.currentTime);
-  oscillator.connect(ctx.destination);
+  if (!audioCtx) return;
+
+  let oscillator = audioCtx.createOscillator();
+  oscillator.type = "sine";
+  oscillator.frequency.setValueAtTime(1000, audioCtx.currentTime);
+  oscillator.connect(audioCtx.destination);
   oscillator.start();
-  oscillator.stop(ctx.currentTime + 0.1);
+  oscillator.stop(audioCtx.currentTime + 0.1);
 }
 
 // update counter
 function updateCounter() {
   document.getElementById("counter").innerText = count;
+}
+
+// start semua
+function startAll() {
+  initBeep();
+  startScanner();
 }
 
 function startScanner() {
@@ -49,9 +65,15 @@ function startScanner() {
     { fps: 10, qrbox: 250 },
     (decodedText) => {
 
-      // anti double cepat
-      if (decodedText === lastScan) return;
+      let now = Date.now();
+
+      // 🚫 anti double cepat (barcode sama dalam 2 detik)
+      if (decodedText === lastScan && (now - lastTime) < 2000) {
+        return;
+      }
+
       lastScan = decodedText;
+      lastTime = now;
 
       scanner.stop().then(() => {
 
@@ -61,21 +83,23 @@ function startScanner() {
           // 🔊 bunyi
           beep();
 
-          // ➕ counter naik
+          // ➕ counter
           count++;
           updateCounter();
 
-          // lanjut scan lagi
+          // 🔁 lanjut scan lagi (delay biar stabil)
           setTimeout(() => {
             startScanner();
-          }, 500);
+          }, 800);
 
         });
 
       });
 
     }
-  );
+  ).catch(err => {
+    alert("Kamera error: " + err);
+  });
 }
 </script>
 
