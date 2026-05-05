@@ -11,40 +11,71 @@
 <label>Tanggal:</label>
 <input type="date" id="tanggal"><br><br>
 
+<h2>Total Scan: <span id="counter">0</span></h2>
+
 <button onclick="startScanner()">Mulai Scan</button>
 
 <div id="reader" style="width:300px; margin-top:20px;"></div>
 
 <script>
 const tanggal = document.getElementById("tanggal");
-tanggal.valueAsDate = new Date();
+tanggal.value = new Date().toISOString().split('T')[0];
 
 let scanner;
+let count = 0;
+let lastScan = "";
+
+// 🔊 beep sederhana
+function beep() {
+  let ctx = new (window.AudioContext || window.webkitAudioContext)();
+  let oscillator = ctx.createOscillator();
+  oscillator.type = "beep";
+  oscillator.frequency.setValueAtTime(1000, ctx.currentTime);
+  oscillator.connect(ctx.destination);
+  oscillator.start();
+  oscillator.stop(ctx.currentTime + 0.1);
+}
+
+// update counter
+function updateCounter() {
+  document.getElementById("counter").innerText = count;
+}
 
 function startScanner() {
   scanner = new Html5Qrcode("reader");
 
-  Html5Qrcode.getCameras().then(devices => {
-    if (devices && devices.length) {
-      let cameraId = devices[0].id;
-
-      scanner.start(
+  scanner.start(
     { facingMode: "environment" },
     { fps: 10, qrbox: 250 },
     (decodedText) => {
 
-      // STOP biar gak spam
+      // anti double cepat
+      if (decodedText === lastScan) return;
+      lastScan = decodedText;
+
       scanner.stop().then(() => {
-          fetch("https://script.google.com/macros/s/AKfycbwkn6XaWmxnEVgADstmplU4NbjqZ1EChqL1Xy26DnF9Wb0AMI7rLydzXfANkNh1O5FF/exec?tanggal=" + tanggal.value + "&resi=" + decodedText)
-          .then(() => {
-            alert("Scan masuk: " + decodedText);
-          });
-        }
-      );
+
+        fetch(`https://script.google.com/macros/s/AKfycbwkn6XaWmxnEVgADstmplU4NbjqZ1EChqL1Xy26DnF9Wb0AMI7rLydzXfANkNh1O5FF/exec?tanggal=${tanggal.value}&resi=${decodedText}`)
+        .then(() => {
+
+          // 🔊 bunyi
+          beep();
+
+          // ➕ counter naik
+          count++;
+          updateCounter();
+
+          // lanjut scan lagi
+          setTimeout(() => {
+            startScanner();
+          }, 500);
+
+        });
+
+      });
+
     }
-  }).catch(err => {
-    alert("Kamera error: " + err);
-  });
+  );
 }
 </script>
 
