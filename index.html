@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Scan Retur</title>
+  <script src="https://unpkg.com/html5-qrcode"></script>
+</head>
+<body>
+
+<h3>Scan Retur</h3>
+
+<label>Tanggal:</label>
+<input type="date" id="tanggal"><br><br>
+
+<button onclick="startScanner()">Mulai Scan</button>
+
+<div id="reader" style="width:300px; margin-top:20px;"></div>
+
+<script>
+const tanggal = document.getElementById("tanggal");
+tanggal.valueAsDate = new Date();
+
+let scanner;
+
+function startScanner() {
+  scanner = new Html5Qrcode("reader");
+
+  Html5Qrcode.getCameras().then(devices => {
+    if (devices && devices.length) {
+      let cameraId = devices[0].id;
+
+      scanner.start(
+    { facingMode: "environment" }, // 🔥 ini kuncinya (kamera belakang)
+    { fps: 10, qrbox: 250 },
+    (decodedText) => {
+          fetch("https://script.google.com/macros/s/AKfycbwkn6XaWmxnEVgADstmplU4NbjqZ1EChqL1Xy26DnF9Wb0AMI7rLydzXfANkNh1O5FF/exec?tanggal=" + tanggal.value + "&resi=" + decodedText)
+          .then(() => {
+            alert("Scan masuk: " + decodedText);
+          });
+        }
+      );
+    }
+  }).catch(err => {
+    alert("Kamera error: " + err);
+  });
+}
+</script>
+
+</body>
+</html>
