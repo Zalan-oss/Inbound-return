@@ -34,19 +34,19 @@ function initBeep() {
   }
 }
 
-// 🔊 bunyi beep
+// 🔊 beep
 function beep() {
   if (!audioCtx) return;
 
-  let oscillator = audioCtx.createOscillator();
-  oscillator.type = "sine";
-  oscillator.frequency.setValueAtTime(1000, audioCtx.currentTime);
-  oscillator.connect(audioCtx.destination);
-  oscillator.start();
-  oscillator.stop(audioCtx.currentTime + 0.1);
+  let osc = audioCtx.createOscillator();
+  osc.type = "sine";
+  osc.frequency.setValueAtTime(1000, audioCtx.currentTime);
+  osc.connect(audioCtx.destination);
+  osc.start();
+  osc.stop(audioCtx.currentTime + 0.08);
 }
 
-// update counter
+// counter
 function updateCounter() {
   document.getElementById("counter").innerText = count;
 }
@@ -62,39 +62,27 @@ function startScanner() {
 
   scanner.start(
     { facingMode: "environment" },
-    { fps: 10, qrbox: 250 },
+    { fps: 15, qrbox: 250 }, // fps dinaikin biar responsif
     (decodedText) => {
 
       let now = Date.now();
 
-      // 🚫 anti double cepat (barcode sama dalam 2 detik)
-      if (decodedText === lastScan && (now - lastTime) < 2000) {
-        return;
-      }
+      // 🚫 anti spam scan
+      if (decodedText === lastScan && (now - lastTime) < 1500) return;
 
       lastScan = decodedText;
       lastTime = now;
 
-      scanner.stop().then(() => {
+      // 🔊 beep langsung (tanpa stop kamera)
+      beep();
 
-        fetch(`https://script.google.com/macros/s/AKfycbwkn6XaWmxnEVgADstmplU4NbjqZ1EChqL1Xy26DnF9Wb0AMI7rLydzXfANkNh1O5FF/exec?tanggal=${tanggal.value}&resi=${decodedText}`)
-        .then(() => {
+      // ➕ counter langsung naik
+      count++;
+      updateCounter();
 
-          // 🔊 bunyi
-          beep();
-
-          // ➕ counter
-          count++;
-          updateCounter();
-
-          // 🔁 lanjut scan lagi (delay biar stabil)
-          setTimeout(() => {
-            startScanner();
-          }, 800);
-
-        });
-
-      });
+      // 🚀 kirim ke server (tanpa nunggu)
+      fetch(`https://script.google.com/macros/s/AKfycbwkn6XaWmxnEVgADstmplU4NbjqZ1EChqL1Xy26DnF9Wb0AMI7rLydzXfANkNh1O5FF/exec?tanggal=${tanggal.value}&resi=${decodedText}`)
+      .catch(err => console.log(err));
 
     }
   ).catch(err => {
