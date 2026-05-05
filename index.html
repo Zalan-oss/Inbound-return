@@ -29,11 +29,12 @@ function startScanner() {
       let cameraId = devices[0].id;
 
       scanner.start(
-    { facingMode: "environment" }, // 🔥 ini kuncinya (kamera belakang)
+    { facingMode: "environment" },
     { fps: 10, qrbox: 250 },
     (decodedText) => {
-          
-           scanner.stop().then(() => {
+
+      // STOP biar gak spam
+      scanner.stop().then(() => {
           fetch("https://script.google.com/macros/s/AKfycbwkn6XaWmxnEVgADstmplU4NbjqZ1EChqL1Xy26DnF9Wb0AMI7rLydzXfANkNh1O5FF/exec?tanggal=" + tanggal.value + "&resi=" + decodedText)
           .then(() => {
             alert("Scan masuk: " + decodedText);
