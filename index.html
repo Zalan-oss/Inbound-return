@@ -60,7 +60,18 @@ function checkDateChange() {
 }
 
 const tanggal = document.getElementById("tanggal");
-tanggal.value = new Date().toISOString().split('T')[0];
+function getToday() {
+  let now = new Date();
+
+  let year = now.getFullYear();
+  let month = String(now.getMonth() + 1).padStart(2, '0');
+  let day = String(now.getDate()).padStart(2, '0');
+
+  return `${year}-${month}-${day}`;
+}
+
+tanggal.value = getToday();
+console.log("Tanggal kirim:", tanggal.value);
 
 let count = parseInt(localStorage.getItem("count")) || 0;
 document.getElementById("counter").innerText = count;
@@ -125,7 +136,7 @@ function startScanner() {
       updateCounter();
 
       // 🚀 kirim ke server (tanpa nunggu)
-      fetch(`https://script.google.com/macros/s/AKfycbz7rVeXy3r4YpaMQ_Z0xgSHLnVBF4TnkXSL9oKOWZ0LMhCzeQxDiR36c-cP2MkR_LMyhg/exec?tanggal=${tanggal.value}&resi=${decodedText}`)
+      fetch(`https://script.google.com/macros/s/AKfycbz7rVeXy3r4YpaMQ_Z0xgSHLnVBF4TnkXSL9oKOWZ0LMhCzeQxDiR36c-cP2MkR_LMyhg/exec?tanggal=${encodeURIComponent(tanggal.value)}&resi=${encodeURIComponent(decodedText)}`)
       .catch(err => console.log(err));
 
     }
