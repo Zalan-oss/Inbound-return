@@ -132,7 +132,7 @@ function startScanner() {
       updateCounter();
 
       // 🔥 kirim ke server (TANPA tanggal)
-      fetch(`https://script.google.com/macros/s/AKfycbx52aaphM6MOFQKgis6ARadDYq_XFQ8sMFR64JVvqtrWcyngUTB958E0Ar-ykWgX6AiQQ/exec?resi=${encodeURIComponent(decodedText)}`)
+      fetch(`https://script.google.com/macros/s/AKfycbwJgYEfppFQEGGhrLL7MZ3yNZI9v5Q3d4mOVPl4736Yfczdd_Gj_F6hf8JokY3pxoJiwA/exec?resi=${encodeURIComponent(decodedText)}`)
       .catch(err => console.log(err));
     }
   ).catch(err => {
