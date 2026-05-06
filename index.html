@@ -105,7 +105,7 @@ function startScanner() {
 
   scanner.start(
     { facingMode: "environment" },
-    { fps: 30, qrbox: 250 }, // fps dinaikin biar responsif
+    { fps: 15, qrbox: 250 }, // fps dinaikin biar responsif
     (decodedText) => {
      checkDateChange(); // 🔥 WAJIB DI SINI
       let now = Date.now();
@@ -125,7 +125,7 @@ function startScanner() {
       updateCounter();
 
       // 🚀 kirim ke server (tanpa nunggu)
-      fetch(`https://script.google.com/macros/s/AKfycbzKDIZQcvUAcNuRaJVI58xbz2qGkMQczekJOIHZuD9UgNndL48vdYelnOLT1wVUGA/exec?tanggal=${tanggal.value}&resi=${decodedText}`)
+      fetch(`https://script.google.com/macros/s/AKfycbz7rVeXy3r4YpaMQ_Z0xgSHLnVBF4TnkXSL9oKOWZ0LMhCzeQxDiR36c-cP2MkR_LMyhg/exec?tanggal=${tanggal.value}&resi=${decodedText}`)
       .catch(err => console.log(err));
 
     }
