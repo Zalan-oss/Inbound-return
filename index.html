@@ -133,7 +133,7 @@ function startScanner() {
       updateCounter();
 
       // 🔥 kirim ke server (TANPA tanggal)
-      fetch(`https://script.google.com/macros/s/AKfycby2jxSs5zsVFqOxHkK2v9aWrWDiMSdfLaxripEWZSLyFCoSGWGfIRtTAHbsmFJey0A8zA/exec?resi=${encodeURIComponent(decodedText)}`)
+      fetch(`https://script.google.com/macros/s/AKfycbxlDXfFuz8JYoLhdqk-uGgzvj3eiLG3zH_7aRsXHL-Q142efDnc59dlWVF6WGChpSHnwQ/exec?resi=${encodeURIComponent(decodedText)}`)
       .catch(err => console.log(err));
     }
   ).catch(err => {
