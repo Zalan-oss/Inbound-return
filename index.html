@@ -6,10 +6,11 @@
 <meta name="mobile-web-app-capable" content="yes">
 <link rel="manifest" href="manifest.json">
 <meta name="theme-color" content="#000000">
-  <title>Scan Retur</title>
-  <script src="https://unpkg.com/html5-qrcode"></script>
-</head>
-  <style>
+<title>Scan Retur</title>
+
+<script src="https://unpkg.com/html5-qrcode"></script>
+
+<style>
 body {
   margin: 0;
   padding: 10px;
@@ -36,10 +37,13 @@ input {
   font-size: 16px;
 }
 </style>
+</head>
+
 <body>
 
 <h3>Scan Retur</h3>
 
+<!-- ❗ sekarang cuma display aja, gak dikirim ke server -->
 <label>Tanggal:</label>
 <input type="date" id="tanggal"><br><br>
 
@@ -47,41 +51,33 @@ input {
 
 <button onclick="startAll()">Mulai Scan</button>
 
-<div id="reader" style="width:300px; margin-top:20px;"></div>
+<div id="reader" style="margin-top:20px;"></div>
 
 <script>
-function checkDateChange() {
-  if (tanggal.value !== currentDate) {
-    currentDate = tanggal.value;
-    count = 0;
-    localStorage.setItem("count", 0);
-    updateCounter();
-  }
-}
-
 const tanggal = document.getElementById("tanggal");
+
+// tampilkan tanggal hari ini (WIB)
 function getToday() {
   let now = new Date();
-
-  let year = now.getFullYear();
-  let month = String(now.getMonth() + 1).padStart(2, '0');
-  let day = String(now.getDate()).padStart(2, '0');
-
-  return `${year}-${month}-${day}`;
+  let y = now.getFullYear();
+  let m = String(now.getMonth() + 1).padStart(2, '0');
+  let d = String(now.getDate()).padStart(2, '0');
+  return `${y}-${m}-${d}`;
 }
 
 tanggal.value = getToday();
-console.log("Tanggal kirim:", tanggal.value);
 
+// counter
 let count = parseInt(localStorage.getItem("count")) || 0;
 document.getElementById("counter").innerText = count;
+
+// variabel
 let scanner;
 let lastScan = "";
 let lastTime = 0;
 let audioCtx = null;
-let currentDate = tanggal.value;
 
-// 🔊 init audio sekali
+// 🔊 init audio
 function initBeep() {
   if (!audioCtx) {
     audioCtx = new (window.AudioContext || window.webkitAudioContext)();
@@ -93,14 +89,13 @@ function beep() {
   if (!audioCtx) return;
 
   let osc = audioCtx.createOscillator();
-  osc.type = "sine";
   osc.frequency.setValueAtTime(1000, audioCtx.currentTime);
   osc.connect(audioCtx.destination);
   osc.start();
   osc.stop(audioCtx.currentTime + 0.08);
 }
 
-// counter
+// update counter
 function updateCounter() {
   document.getElementById("counter").innerText = count;
 }
@@ -111,34 +106,34 @@ function startAll() {
   startScanner();
 }
 
+// scanner
 function startScanner() {
   scanner = new Html5Qrcode("reader");
 
   scanner.start(
     { facingMode: "environment" },
-    { fps: 15, qrbox: 250 }, // fps dinaikin biar responsif
+    { fps: 15, qrbox: 250 },
     (decodedText) => {
-     checkDateChange(); // 🔥 WAJIB DI SINI
+
       let now = Date.now();
 
-      // 🚫 anti spam scan
-      if (decodedText === lastScan && (now - lastTime) < 1500) return;
+      // anti double scan
+      if (decodedText === lastScan && (now - lastTime) < 1200) return;
 
       lastScan = decodedText;
       lastTime = now;
 
-      // 🔊 beep langsung (tanpa stop kamera)
+      // beep
       beep();
 
-      // ➕ counter langsung naik
+      // counter
       count++;
       localStorage.setItem("count", count);
       updateCounter();
 
-      // 🚀 kirim ke server (tanpa nunggu)
-      fetch(`https://script.google.com/macros/s/AKfycbx52aaphM6MOFQKgis6ARadDYq_XFQ8sMFR64JVvqtrWcyngUTB958E0Ar-ykWgX6AiQQ/exec?tanggal=${encodeURIComponent(tanggal.value)}&resi=${encodeURIComponent(decodedText)}`)
+      // 🔥 kirim ke server (TANPA tanggal)
+      fetch(`https://script.google.com/macros/s/AKfycbx52aaphM6MOFQKgis6ARadDYq_XFQ8sMFR64JVvqtrWcyngUTB958E0Ar-ykWgX6AiQQ/exec?resi=${encodeURIComponent(decodedText)}`)
       .catch(err => console.log(err));
-
     }
   ).catch(err => {
     alert("Kamera error: " + err);
