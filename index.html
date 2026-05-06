@@ -125,7 +125,7 @@ function startScanner() {
       updateCounter();
 
       // 🚀 kirim ke server (tanpa nunggu)
-      fetch(`https://script.google.com/macros/s/AKfycbxScLFwCNkwL8iIwLW0BZxtMUSDx5nYke3A0ZUbEIFUWAI6d3cEb9vPYIvMo2hszTcG/exec?tanggal=${tanggal.value}&resi=${decodedText}`)
+      fetch(`https://script.google.com/macros/s/AKfycbySUPD97tFgq2LA1NpRYZ2Fc9v5Cm6lYB_lArHIXIPpOFLl-AeoIuR1TFOjeUJp7B_s/exec?tanggal=${tanggal.value}&resi=${decodedText}`)
       .catch(err => console.log(err));
 
     }
