@@ -50,20 +50,6 @@ input {
 <div id="reader" style="width:300px; margin-top:20px;"></div>
 
 <script>
-
-let count = localStorage.getItem("count") || 0;
-document.getElementById("counter").innerText = count;
-
-const tanggal = document.getElementById("tanggal");
-tanggal.value = new Date().toISOString().split('T')[0];
-
-let scanner;
-let count = 0;
-let lastScan = "";
-let lastTime = 0;
-let audioCtx = null;
-let currentDate = tanggal.value;
-
 function checkDateChange() {
   if (tanggal.value !== currentDate) {
     currentDate = tanggal.value;
@@ -72,6 +58,18 @@ function checkDateChange() {
     updateCounter();
   }
 }
+
+const tanggal = document.getElementById("tanggal");
+tanggal.value = new Date().toISOString().split('T')[0];
+
+let count = parseInt(localStorage.getItem("count")) || 0;
+document.getElementById("counter").innerText = count;
+let scanner;
+let lastScan = "";
+let lastTime = 0;
+let audioCtx = null;
+let currentDate = tanggal.value;
+
 // 🔊 init audio sekali
 function initBeep() {
   if (!audioCtx) {
