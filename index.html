@@ -50,6 +50,10 @@ input {
 <div id="reader" style="width:300px; margin-top:20px;"></div>
 
 <script>
+
+let count = localStorage.getItem("count") || 0;
+document.getElementById("counter").innerText = count;
+
 const tanggal = document.getElementById("tanggal");
 tanggal.value = new Date().toISOString().split('T')[0];
 
@@ -58,7 +62,16 @@ let count = 0;
 let lastScan = "";
 let lastTime = 0;
 let audioCtx = null;
+let currentDate = tanggal.value;
 
+function checkDateChange() {
+  if (tanggal.value !== currentDate) {
+    currentDate = tanggal.value;
+    count = 0;
+    localStorage.setItem("count", 0);
+    updateCounter();
+  }
+}
 // 🔊 init audio sekali
 function initBeep() {
   if (!audioCtx) {
@@ -94,9 +107,9 @@ function startScanner() {
 
   scanner.start(
     { facingMode: "environment" },
-    { fps: 15, qrbox: 250 }, // fps dinaikin biar responsif
+    { fps: 30, qrbox: 250 }, // fps dinaikin biar responsif
     (decodedText) => {
-
+     checkDateChange(); // 🔥 WAJIB DI SINI
       let now = Date.now();
 
       // 🚫 anti spam scan
@@ -110,6 +123,7 @@ function startScanner() {
 
       // ➕ counter langsung naik
       count++;
+      localStorage.setItem("count", count);
       updateCounter();
 
       // 🚀 kirim ke server (tanpa nunggu)
